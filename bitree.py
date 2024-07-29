@@ -1,171 +1,104 @@
-# encoding: utf-8
-"""
-@author: PangYuda
-@contact: px7939592023@163.com
-@time: 2024/4/2 11:48
-@desc: 
-"""
+class TreeNode():
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+def maxDepth(root) -> int:
+    """104.二叉树最大深度"""
+    if not root:
+        return 0
+    res = 0
+    queue = [root]
+    while queue:
+        ll = []
+        for node in queue:
+            if node.left:
+                ll.append(node.left.val)
+            if node.right:
+                ll.append(node.right.val)
+        res += 1
+        queue = ll
+    return res
 
-class BinaryTree:
-    def __init__(self, data):
-        self.data = data
-        self.lchild = None
-        self.rchild = None
-        self.parent = None
-
-a = BinaryTree("A")
-b = BinaryTree("B")
-c = BinaryTree("C")
-d = BinaryTree("D")
-a.lchild = b
-b.rchild = c
-a.rchild = d
-
-root = a
-
-class BST():
-    """二叉搜索树"""
-    def __init__(self, data=None):
-        self.root = None
-        if data:
-            for val in data:
-                self.insert_no_recursion(val)
-    def insert(self, node, val):   # 在node这棵树中插入val,插在叶子节点上
-        """递归"""
-        if not node:
-            node = BinaryTree(val)
-        elif val < node.data:
-            node.lchild = self.insert(node.lchild, val)
-            node.lchild.parent = node
-        elif val > node.data:
-            node.rchild = self.insert(node.rchild, val)
-            node.rchild.parent = node
-        return node
-    def insert_no_recursion(self, val):
-        p = self.root
-        if not p:
-            self.root = BinaryTree(val)
+def invertTree(root):
+    """226.翻转二叉树"""
+    def bitree(root):
+        if not root:
             return
-        while True:   # !!!
-            if val < p.data:
-                if p.lchild:
-                    p = p.lchild
-                else:
-                    p.lchild = BinaryTree(val)
-                    p.lchild.parent = p
-                    return
-            elif val > p.data:
-                if p.rchild:
-                    p = p.rchild
-                else:
-                    p.rchild = BinaryTree(val)
-                    p.rchild.parent = p
-                    return
-            else:
-                return
+        if root.left or root.right:
+            tmp = root.left
+            root.left = root.right
+            root.right = tmp
+        bitree(root.left)
+        bitree(root.right)
+    bitree(root)
+    return root
 
-    def query(self, node, val):
-        if not node:
-            return None
-        if val > node.data:
-            return self.query(node.rchild, val)
-        elif val < node.data:
-            return self.query(node.lchild, val)
-        else:
-            return node
+def isSymmetric(root) -> bool:
+    """101.判断是否为对称二叉树"""
+    def pre_order(root):
+        if not root:
+            res1.append("")
+        res1.append(root.val)
+        pre_order(root.left)
+        pre_order(root.right)
+    def post_order(root):
+        if not root:
+            res2.append("")
+        res2.append(root.val)
+        post_order(root.left)
+        post_order(root.right)
+    res1, res2 = [], []
+    pre_order(root)
+    post_order(root)
+    return res1 == res2[::-1]
 
-    def query_np_recursion(self, val):
-        p = self.root
-        while p:
-            if val > p.data:
-                p = p.rchild
-            elif val < p.data:
-                p = p.lchild
-            else:
-                return p
-        return None
+def buildTree(preorder, inorder):
+    """105.根据前序和中序构造二叉树"""
+    if not preorder or not inorder:
+        return
+    root = TreeNode(preorder[0])
+    ind = inorder.index(preorder[0])
 
-    def __remove_node_1(self, node):
-        """叶子节点"""
-        if not node.parent:
-            self.root = None
-        if node == node.parent.lchild:
-            node.parent.lchild = None
-        if node == node.parent.rchild:
-            node.parent.rchild = None
+    root.left = buildTree(preorder[1:ind+1], inorder[:ind])
+    root.right = buildTree(preorder[ind+1:], inorder[ind+1:])
+    return root
 
-    def __remove_node_21(self, node):
-        if not node.parent:
-            self.root = node.lchild
-            node.lchild.parent = None
-        elif node == node.parent.lchild:
-            node.parent.lchild = node.lchild
-            node.lchild.parent = node.parent
-        else:
-            node.parant.rchild = node.rchile
-            node.rchild.parent = node.parent
+def flatten(root) -> None:
+    """
+    Do not return anything, modify root in-place instead.
+    114.二叉树展开为列表
+    """
+    while root:
+        if root.left:
+            l = root.left
+            while l.right:
+                l = l.right
+            l.right = root.right
 
-    def __remove_node_22(self, node):
-        if not node.parent:
-            self.root = node.rchild
-            node.rchild.parent = None
-        elif node == node.parent.lchild:
-            node.parent.lchild = node.lchild
-            node.lchild.parent = node.parent
-        else:
-            node.parent.rchild = node.rchild
-            node.rchild.parent = node.parent
+            root.right = root.left
+            root.left = None
+        root = root.right
 
-    def delete(self, val):
-        if self.root:
-            node = self.query_np_recursion(val)
-            if not node:
-                raise ValueError("not found")
-            elif not node.lchild and not node.rchild:   # 叶子节点
-                self.__remove_node_1(node)
-            elif not node.rchild:   # 只有左子树
-                self.__remove_node_21(node)
-            elif not node.lchild:
-                self.__remove_node_22(node)
-            else:   # 有左右子树：找出右子树中最小节点
-                min_node = node.rchild   # min_node一定没有左子树
-                while min_node.lchild:
-                    min_node = min_node.lchild
-                node.data = min_node.data
-                # 插入节点
-                if min_node.rchild:
-                    self.__remove_node_22(min_node)
-                else:   # 叶子节点
-                    self.__remove_node_1(min_node)
+def hasPathSum(root, targetSum: int) -> bool:
+    if not root:
+        return False
 
-    def pre_order(self, root):
-        """前序"""
+    # 先序遍历
+    def pre_order(root, init_val, k):
         if root:
-            print(root.data, end=",")
-            self.pre_order(root.lchild)
-            self.pre_order(root.rchild)
+            init_val += root.val
+            if not root.left and not root.right and init_val == targetSum:  # 必须是叶子节点
+                k = k + 1
+            else:
+                if not root.left and not root.right:
+                    init_val -= root.val  # 遍历到叶子节点，次数累加！=目标值，则减去该叶子节点的值，继续遍历其他叶子节点
+                k = pre_order(root.left, init_val, k)
+                k = pre_order(root.right, init_val, k)
+        return k
 
-    def in_order(self, root):
-        if root:
-            self.in_order(root.lchild)
-            print(root.data, end=",")
-            self.in_order(root.rchild)
-
-    def level_order(self, root):
-        from collections import deque
-        queue = deque()
-        queue.append(root)
-        while len(queue) > 0:
-            node = queue.popleft()
-            print(node.data, end=",")
-            if node.lchild:
-                queue.append(node.lchild)
-            if node.rchild:
-                queue.append(node.rchild)
-
-# tree = BST([2, 5, 1, 7, 4, 3, 6])
-# tree.in_order(tree.root)
-# print("\n")
-# tree.delete(2)
-# tree.in_order(tree.root)
-
+    k = pre_order(root, 0, 0)
+    if k != 0:
+        return True
+    else:
+        return False

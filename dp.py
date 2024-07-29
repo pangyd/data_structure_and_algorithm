@@ -154,3 +154,43 @@ class dp_in_bag:
                     return step + 1
                 queue.append((target, step+1))
         return 0
+
+class dp_in_sequence:
+    def lengthOfLIS(self, nums) -> int:
+        n = len(nums)
+        if n <= 1:
+            return 1
+        dp = [1] * n
+        res = 1
+        max_len = 0
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    if dp[j] + 1 > dp[i]:
+                        dp[i] = dp[j] + 1
+                        res += 1
+            max_len = max(max_len, res)
+            res = 1
+        return max_len
+    def findNumberOfLIS(self, nums) -> int:
+        """673.求出所有最长连续子序列"""
+        n = len(nums)
+        if n <= 1:
+            return 1
+        dp = [1] * n
+        counts = [1] * n
+        max_len = 0
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    if dp[j] + 1 > dp[i]:
+                        dp[i] = dp[j] + 1
+                        counts[i] = counts[j]
+                    elif dp[j] + 1 == dp[i]:
+                        counts[i] += counts[j]
+            max_len = max(max_len, dp[i])
+        res = 0
+        for i in range(n):
+            if dp[i] == max_len:
+                res += counts[i]
+        return res
