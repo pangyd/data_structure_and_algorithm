@@ -102,3 +102,16 @@ def hasPathSum(root, targetSum: int) -> bool:
         return True
     else:
         return False
+
+def sumNumbers(root) -> int:
+    def bitree(root, l):
+        if not root:
+            return
+        if not root.left and not root.right:
+            res.append(l+str(root.val))
+        bitree(root.left, l+str(root.val))
+        bitree(root.right, l+str(root.val))
+    res = []
+    bitree(root, "")
+    res = [int(s) for s in res]
+    return sum(res)
