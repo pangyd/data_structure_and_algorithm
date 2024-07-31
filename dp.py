@@ -194,3 +194,19 @@ class dp_in_sequence:
             if dp[i] == max_len:
                 res += counts[i]
         return res
+
+def jump(nums) -> int:
+    """45.跳跃到最后一个最少的步数"""
+    n = len(nums)
+    dp = [float("inf")] * n
+    dp[0] = 0
+    for i in range(0, n-1):
+        if nums[i] == 0:
+            continue
+        if i + nums[i] + 1 > n:
+            for j in range(i+1, n):
+                dp[j] = min(dp[i]+1, dp[j])
+        else:
+            for j in range(i+1, i+nums[i]+1):
+                dp[j] = min(dp[i]+1, dp[j])
+    return dp[-1]
