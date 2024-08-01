@@ -75,7 +75,7 @@ def buildTree(preorder, inorder):
 def flatten(root) -> None:
     """
     Do not return anything, modify root in-place instead.
-    114.二叉树展开为列表
+    114.二叉树展开为链表
     """
     while root:
         if root.left:
@@ -89,6 +89,7 @@ def flatten(root) -> None:
         root = root.right
 
 def hasPathSum(root, targetSum: int) -> bool:
+    """是否存在头节点到根节点的总和等于targetSum"""
     if not root:
         return False
 
@@ -110,3 +111,125 @@ def hasPathSum(root, targetSum: int) -> bool:
         return True
     else:
         return False
+
+def sumNumbers(root) -> int:
+    """所有路线总和"""
+    def bitree(root, l):
+        if not root:
+            return
+        if not root.left and not root.right:
+            res.append(l+str(root.val))
+        bitree(root.left, l+str(root.val))
+        bitree(root.right, l+str(root.val))
+    res = []
+    bitree(root, "")
+    res = [int(s) for s in res]
+    return sum(res)
+
+def maxPathSum(root) -> int:
+    """124.最大链路和：不一定要经过根节点"""
+    def bitree(root):
+        if not root:
+            return 0
+        l = bitree(root.left)   # 左子树最大链路和
+        r = bitree(root.right)
+        nonlocal res
+        res = max(res, root.val+l+r)
+        return max(max(l, r) + root.val, 0)   # 当前子树最大链路和
+    res = float("-inf")
+    bitree(root)
+    return res
+
+def lowestCommonAncestor(root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+    """236.最近公共祖先"""
+    if not root or root == p or root == q:
+        return root
+    left = lowestCommonAncestor(root.left, p, q)
+    right = lowestCommonAncestor(root.right, p, q)
+
+    if left and right:
+        return root
+    elif left:
+        return left
+    elif right:
+        return right
+
+def sumNumbers(root) -> int:
+    def bitree(root, l):
+        if not root:
+            return
+        if not root.left and not root.right:
+            res.append(l+str(root.val))
+        bitree(root.left, l+str(root.val))
+        bitree(root.right, l+str(root.val))
+    res = []
+    bitree(root, "")
+    res = [int(a) for a in res]
+    return sum(res)
+
+def getMinimumDifference(root) -> int:
+    """530.二叉搜索树最小绝对值差"""
+    def bitree(root, l):
+        nonlocal res
+        if not root:
+            return
+        l.append(root.val)
+        if root.left and root.right:
+            l_min = min([abs(a - root.left.val) for a in l])
+            r_min = min([abs(a - root.right.val) for a in l])
+            res = min(res, l_min, r_min)
+        elif root.left and not root.right:
+            l_min = min([abs(a - root.left.val) for a in l])
+            res = min(res, l_min)
+        elif not root.left and root.right:
+            r_min = min([abs(a - root.right.val) for a in l])
+            res = min(res, r_min)
+        bitree(root.left, l)
+        bitree(root.right, l)
+
+    res = float("inf")
+    bitree(root, [float("inf")])
+    return res
+
+class search_bitree:
+    def demo(self, root):
+        p = root
+        st = []   # 栈
+        while p or st:
+            while p:
+                st.append(p)
+                p = p.left
+            p = st.pop()
+            proc(p.val)
+            p = p.right
+    def getMinimumDifference(self, root):
+        """最小绝对值差"""
+        st = []
+        p = root
+        pre = -float('inf')
+        min_val = float('inf')
+        while p is not None or st:
+            while p is not None:
+                st.append(p)
+                p = p.left
+            p = st.pop()
+            cur = p.val
+            if cur - pre < min_val:
+                min_val = cur - pre
+            pre = cur
+            p = p.right
+        return min_val
+
+    def kthSmallest(self, root: TreeNode, k: int) -> int:
+        st = []
+        p = root
+        s = 0
+        while p is not None or st:
+            while p is not None:
+                st.append(p)
+                p = p.left
+            p = st.pop()
+            s += 1
+            if s == k:
+                return p.val
+            p = p.right
