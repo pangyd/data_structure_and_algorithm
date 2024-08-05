@@ -63,35 +63,58 @@ def merge_sort(nums):
     print(str(int(''.join(nums))))
 
 
-def partition(nums, i, j):
-    l0 = nums[i]
-    # i, j = left, right
-    while i < j:
-        while i < j and nums[j] >= l0:
-            j -= 1
-        nums[i] = nums[j]
-        while i < j and nums[i] <= l0:
-            i += 1
-        nums[j] = nums[i]
-    nums[i] = l0
-    return i
+class Top_k:
+    def partition(self, nums, i, j):
+        l0 = nums[i]
+        # i, j = left, right
+        while i < j:
+            while i < j and nums[j] >= l0:
+                j -= 1
+            nums[i] = nums[j]
+            while i < j and nums[i] <= l0:
+                i += 1
+            nums[j] = nums[i]
+        nums[i] = l0
+        return i
 
 
-def topk_ind(nums, k, left, right):
-    if left < right:
-        ind = partition(nums, left, right)
-        if k == ind:
-            return nums
-        elif k > ind:
-            topk_ind(nums, k, ind + 1, right)
-        else:
-            topk_ind(nums, k, left, ind - 1)
-        print(nums)
-    return nums
+    def topk_ind(self, nums, k, left, right):
+        if left < right:
+            ind = self.partition(nums, left, right)
+            if k == ind:
+                return nums
+            elif k > ind:
+                self.topk_ind(nums, k, ind + 1, right)
+            else:
+                self.topk_ind(nums, k, left, ind - 1)
+        return nums
+
+    def topk_2(self, nums, k):
+        import random
+        def sort(nums, k):
+            pivot = random.choice(nums)
+            big, same, small = [], [], []
+            for num in nums:
+                if num == pivot:
+                    same.append(num)
+                elif num < pivot:
+                    small.append(num)
+                else:
+                    big.append(num)
+            if k <= len(big):
+                return sort(big, k)
+            elif k > len(big) + len(same):
+                return sort(small, k-len(big)-len(same))
+            else:
+                return pivot
+        res = sort(nums, k)
+        return res
+
 
 nums = [2, 1]
 k = 1
 left = 0
 right = len(nums) - 1
-nums = topk_ind(nums, len(nums) - k, left, right)
+topk = Top_k()
+nums = topk.topk_ind(nums, len(nums) - k, left, right)
 print(nums[len(nums) - k])
