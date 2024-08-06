@@ -118,3 +118,30 @@ right = len(nums) - 1
 topk = Top_k()
 nums = topk.topk_ind(nums, len(nums) - k, left, right)
 print(nums[len(nums) - k])
+
+
+def nextPermutation(nums) -> None:
+    """
+    Do not return anything, modify nums in-place instead.
+    31.下一个排列
+    """
+    n = len(nums)
+    if n > 1:
+        left = -1
+        right = 0
+        # left、right表示相邻的两个不同的数字，之间可能有有限个相同的值，但nums[right]>nums[left]
+        # 循环结束后left和right是nums中两个不同的最大的数的索引
+        for i in range(n - 1):
+            if nums[i] < nums[i + 1]:
+                left = i
+            if left != -1 and nums[i] > nums[left]:
+                right = i
+        if (left != -1) & (nums[-1] > nums[left]):
+            right = n - 1
+        if left == -1:
+            nums[:] = nums[::-1]  # 不存在nums[right] > nums[left]，即nums为倒序列表
+        else:
+            t = nums[left]
+            nums[left] = nums[right]
+            nums[right] = t
+            nums[:] = nums[:left + 1] + nums[n - 1: left: -1]

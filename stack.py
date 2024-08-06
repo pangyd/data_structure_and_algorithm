@@ -40,3 +40,43 @@ def maze_path(x1, y1, x2, y2):
         return False
 
 
+def isValid(s: str) -> bool:
+    """20.有效的括号"""
+    if len(s) == 1:
+        return False
+    match_dict = {'(': ')', '[': ']', '{': '}'}
+    listNode = []
+    for char in s:
+        if char in match_dict.keys():
+            listNode.append(char)
+        else:
+            if len(listNode) == 0:   # 当前为空栈
+                return False
+            # 当char in [), ], }]时，判断链表最后一个是否与之匹配，匹配则出栈，不匹配则返回False
+            if char == match_dict[listNode[-1]]:
+                # 匹配，出栈
+                listNode.pop()
+            else:
+                # 不匹配，返回False
+                return False
+    # 最后判断栈是否为空
+    if len(listNode) == 0:
+        return True
+    else:
+        return False
+
+def generateParenthesis(n: int):
+    """22.括号生成"""
+    res = []
+    def dfs(paths, left, right):
+        if left > n or right > left:  # 左括号＞n或右括号＞左括号
+            return
+        if len(paths) == n * 2:  # 括号成对存在
+            res.append(paths)
+            return  # 返回后继续递归
+
+        dfs(paths + "(", left + 1, right)
+        dfs(paths + ")", left, right + 1)
+
+    dfs('', 0, 0)
+    return res

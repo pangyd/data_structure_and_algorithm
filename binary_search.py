@@ -30,7 +30,7 @@ def unrepeat_bool(nums, target):
                 left = mid + 1
             else:
                 right = mid - 1
-    return False   # return -1
+    return False
 
 
 def repeat_bool(nums, target):

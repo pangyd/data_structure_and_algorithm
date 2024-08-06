@@ -53,3 +53,34 @@ class Double_linklist():
         self.curNode.next = p.next
         p.next.prior = self.curNode
         del p
+
+def removeNthFromEnd(head, n: int):
+    """19.删除第n个节点"""
+    dummy = ListNode(0)
+    dummy.next = head  # 将head的头节点给dummy.next
+
+    slow, fast = dummy, dummy
+    for _ in range(n):
+        fast = fast.next  # 快指针先走n步
+
+    # 同时走，最终slow停在需要删除节点的前一个位置
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next
+
+    slow.next = slow.next.next
+    return dummy.next  # head的头节点
+
+def mergeTwoLists(list1, list2):
+    """21.合并两个链表"""
+    if not list1:
+        return list2
+    elif not list2:
+        return list1
+
+    elif list1.val <= list2.val:
+        list1.next = mergeTwoLists(list1.next, list2)  # 指向其余节点的合并结果
+        return list1
+    else:
+        list2.next = mergeTwoLists(list1, list2.next)
+        return list2

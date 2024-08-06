@@ -38,3 +38,18 @@ def matrixArea2(matrix):
                 res = max(res, pre[tmp] * (k- stack[-1] - 1))
             stack.append(k)
     return res
+
+
+def maxArea(height) -> int:
+    """11.装最多的水"""
+    i = 0
+    j = len(height)-1
+    max_s = 0
+    while i < j:
+        if height[i] < height[j]:
+            max_s = max(max_s, height[i] * (j - i))
+            i += 1
+        else:
+            max_s = max(max_s, height[j] * (j - i))
+            j -= 1
+    return max_s

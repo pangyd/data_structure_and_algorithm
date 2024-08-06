@@ -53,9 +53,9 @@ def isSymmetric(root) -> bool:
     def post_order(root):
         if not root:
             res2.append("")
-        res2.append(root.val)
         post_order(root.left)
         post_order(root.right)
+        res2.append(root.val)
     res1, res2 = [], []
     pre_order(root)
     post_order(root)
@@ -153,19 +153,6 @@ def lowestCommonAncestor(root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'Tre
         return left
     elif right:
         return right
-
-def sumNumbers(root) -> int:
-    def bitree(root, l):
-        if not root:
-            return
-        if not root.left and not root.right:
-            res.append(l+str(root.val))
-        bitree(root.left, l+str(root.val))
-        bitree(root.right, l+str(root.val))
-    res = []
-    bitree(root, "")
-    res = [int(a) for a in res]
-    return sum(res)
 
 def getMinimumDifference(root) -> int:
     """530.二叉搜索树最小绝对值差"""
