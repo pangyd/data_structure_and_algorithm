@@ -109,3 +109,12 @@ print(eval("1+2"))
 def XXX():
     return 2
 XXX()
+
+a = [1, 2, 3]
+a.remove(1)
+del a[0]
+print(a)
+
+a = [int(b) for b in input().split()]
+print(a)
+

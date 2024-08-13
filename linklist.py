@@ -6,17 +6,17 @@
 @desc: 
 """
 
-class Node:
-    def __init__(self, item):
+class ListNode:
+    def __init__(self, item=0):
         self.item = item
         self.next = None
 
 
 def create_linklist_head(l):
     """头插法"""
-    head = Node(l[0])
+    head = ListNode(l[0])
     for element in l[1:]:
-        node = Node(element)
+        node = ListNode(element)
         node.next = head
         head = node
     return head
@@ -28,10 +28,10 @@ def print_linklist(head):
 
 def create_linklist_tail(l):
     """尾插法"""
-    head = Node(l[0])
+    head = ListNode(l[0])
     tail = head   # 最开始头尾一样
     for element in l[1:]:
-        node = Node(element)
+        node = ListNode(element)
         tail.next = node
         tail = node
     return head
@@ -88,7 +88,7 @@ def mergeTwoLists(list1, list2):
 
 def deleteDuplicates(head):
     """82.删除重复元素"""
-    p = dummp = Linklist(next=head)
+    p = dummp = ListNode(next=head)
     while p.next and p.next.next:
         val = p.next.val
         if p.next.next.val == val:
@@ -97,3 +97,29 @@ def deleteDuplicates(head):
         else:
             p = p.next
     return dummp.next
+
+def sortList(self, head):
+    """148.排序链表  --  分支（分成两部分）"""
+    if not head or not head.next:
+        return head
+
+    slow, fast = head, head.next
+    while fast and fast.next:
+        slow, fast = slow.next, fast.next.next
+
+    slow.next, mid = None, slow.next
+
+    left = self.sortList(head)
+    right = self.sortList(mid)
+
+    p = dummy = ListNode()
+    while left and right:
+        if left.val < right.val:
+            p.next = left
+            left = left.next
+        else:
+            p.next = right
+            right = right.next
+        p = p.next
+    p.next = left if left else right
+    return dummy.next

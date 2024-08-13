@@ -71,3 +71,17 @@ def combinationSum(candidates, target: int):
     res = []
     backtrack([], target)
     return res
+
+def generateParenthesis(n: int):
+    """22.括号生成"""
+    def backtrack(path, left, right):
+        if len(path) == 2*n:
+            res.append(path)
+            return
+        if left > n or right > left:
+            return
+        backtrack(path+"(", left+1, right)
+        backtrack(path+")", left, right+1)
+    res = []
+    backtrack("", 0, 0)
+    return res
