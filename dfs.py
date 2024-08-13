@@ -57,3 +57,25 @@ def solve(board) -> None:
                 board[i][j] = "X"
             if board[i][j] == "B":
                 board[i][j] = "O"
+
+def exist(board, word: str) -> bool:
+    """79.单词搜索"""
+    def dfs(i, j, k, visited):   # visited: 保持搜索过的单词，避免重复搜索
+        if k == len(word):
+            return True
+        point = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for x, y in point:
+            tmp_i = x + i
+            tmp_j = y + j
+            if 0 <= tmp_i < row and 0 <= tmp_j < col and (tmp_i, tmp_j) not in visited and board[tmp_i][tmp_j] == word[k]:
+                visited.add((tmp_i, tmp_j))
+                if dfs(tmp_i, tmp_j, k+1, visited):
+                    return True
+                visited.remove((tmp_i, tmp_j))
+        return False
+    row, col = len(board), len(board[0])
+    for i in range(row):
+        for j in range(col):
+            if board[i][j] == word[0] and dfs(i, j, 1, {(i, j)}):
+                return True
+    return False
