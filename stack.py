@@ -80,3 +80,27 @@ def generateParenthesis(n: int):
 
     dfs('', 0, 0)
     return res
+
+def calculate(s: str) -> int:
+    """224.计算器"""
+    res, num, sign = 0, 0, 1
+    stack = []
+    for c in s:
+        if c.isdigit():
+            num = 10 * num + int(c)
+        elif c == "+" or c == "-":
+            res += num * sign
+            num = 0
+            sign = 1 if c == "+" else -1
+        elif c == "(":
+            stack.append(sign)
+            stack.append(res)
+            res = 0
+            sign = 1
+        elif c == ")":
+            res += num * sign
+            num = 0
+            res *= stack.pop()
+            res += stack.pop()
+    res += num * sign
+    return res

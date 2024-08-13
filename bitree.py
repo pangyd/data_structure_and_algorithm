@@ -195,8 +195,8 @@ class search_bitree:
         p = root
         pre = -float('inf')
         min_val = float('inf')
-        while p is not None or st:
-            while p is not None:
+        while p or st:
+            while p:
                 st.append(p)
                 p = p.left
             p = st.pop()
@@ -211,8 +211,8 @@ class search_bitree:
         st = []
         p = root
         s = 0
-        while p is not None or st:
-            while p is not None:
+        while p or st:
+            while p:
                 st.append(p)
                 p = p.left
             p = st.pop()
@@ -220,3 +220,22 @@ class search_bitree:
             if s == k:
                 return p.val
             p = p.right
+
+    def isValidBST(self, root) -> bool:
+        """98.验证二叉搜索树"""
+        st = []
+        p = root
+        res = -inf
+        while p or st:
+            while p:
+                st.append(p)
+                p = p.left
+            p = st.pop()
+
+            if p.val <= res:
+                return False
+            else:
+                res = p.val
+
+            p = p.right
+        return True

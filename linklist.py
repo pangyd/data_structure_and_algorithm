@@ -84,3 +84,16 @@ def mergeTwoLists(list1, list2):
     else:
         list2.next = mergeTwoLists(list1, list2.next)
         return list2
+
+
+def deleteDuplicates(head):
+    """82.删除重复元素"""
+    p = dummp = Linklist(next=head)
+    while p.next and p.next.next:
+        val = p.next.val
+        if p.next.next.val == val:
+            while p.next and p.next.val == val:
+                p.next = p.next.next
+        else:
+            p = p.next
+    return dummp.next
