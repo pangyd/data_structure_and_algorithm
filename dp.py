@@ -140,6 +140,27 @@ class dp_in_string:
                     dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1
         return dp[n][m]
 
+    def isInterleave(self, s1: str, s2: str, s3: str) -> bool:
+        """97.交错字符串"""
+        if len(s1) + len(s2) != len(s3):
+            return False
+        n1, n2 = len(s1), len(s2)
+        dp = [[False] * (n2 + 1) for _ in range(n1 + 1)]
+        # dp[i][j]: s1的前i个和s2的前i个能否组成s3的前i+j个
+        dp[0][0] = True
+        for i in range(1, n1 + 1):
+            if s1[i - 1] == s3[i - 1] and dp[i - 1][0]:
+                dp[i][0] = True
+        for j in range(1, n2 + 1):
+            if s2[j - 1] == s3[j - 1] and dp[0][j - 1]:
+                dp[0][j] = True
+
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if (s1[i - 1] == s3[i + j - 1] and dp[i - 1][j]) or (s2[j - 1] == s3[i + j - 1] and dp[i][j - 1]):
+                    dp[i][j] = True
+        return dp[n1][n2]
+
 class dp_in_bag:
     def numSquares(self, n: int) -> int:
         """279.拆分成完全平方数的最少数量"""
@@ -210,3 +231,11 @@ def jump(nums) -> int:
             for j in range(i+1, i+nums[i]+1):
                 dp[j] = min(dp[i]+1, dp[j])
     return dp[-1]
+
+def climbStairs(n: int) -> int:
+    """70.爬楼梯"""
+    """f(n)=f(n-1)+f(n-2)"""
+    f = [1, 1]
+    for i in range(2, n + 1):
+        f.append(f[i - 1] + f[i - 2])
+    return f[-1]
