@@ -16,7 +16,7 @@ def matrixArea(heights):
     for i in range(len(heights)):
         while stack and heights[stack[-1]] > heights[i]:   # 找到下降的索引
             tmp = stack.pop()   # 当前最高矩形的索引
-            res = max(res, (i - stack[-1] - 1) * heights[tmp])
+            res = max(res, (i - stack[-1] + 1) * heights[tmp])
         stack.append(i)   # 栈中为上升的索引
     return res
 
