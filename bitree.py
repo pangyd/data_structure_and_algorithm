@@ -42,6 +42,20 @@ def invertTree(root):
     bitree(root)
     return root
 
+def diameterOfBinaryTree(root) -> int:
+    """543.二叉树直径"""
+    def bitree(root):
+        if not root:
+            return -1
+        left = bitree(root.left) + 1
+        right = bitree(root.right) + 1
+        nonlocal res
+        res = max(res, left+right)
+        return max(left, right)
+    res = 0
+    bitree(root)
+    return res
+
 def isSymmetric(root) -> bool:
     """101.判断是否为对称二叉树"""
     def pre_order(root):
@@ -126,6 +140,21 @@ def sumNumbers(root) -> int:
     res = [int(s) for s in res]
     return sum(res)
 
+def pathSum(root, targetSum: int) -> int:
+    """437.子路径总和等于targetSum的数量"""
+    def bitree(root, l):
+        if not root:
+            return 0
+
+        all_road = [root.val + x for x in l]
+        all_road += [root.val]
+
+        count = all_road.count(targetSum)
+
+        return count + bitree(root.left, all_road) + bitree(root.right, all_road)
+
+    return bitree(root, [])
+
 def maxPathSum(root) -> int:
     """124.最大链路和：不一定要经过根节点"""
     def bitree(root):
@@ -135,6 +164,7 @@ def maxPathSum(root) -> int:
         r = bitree(root.right)
         nonlocal res
         res = max(res, root.val+l+r)
+        """为什么要跟0比：比如[2, -1]，如果不跟0比，最终输出的1"""
         return max(max(l, r) + root.val, 0)   # 当前子树最大链路和
     res = float("-inf")
     bitree(root)
@@ -177,6 +207,18 @@ def getMinimumDifference(root) -> int:
     res = float("inf")
     bitree(root, [float("inf")])
     return res
+
+def sortedArrayToBST(nums):
+    """108.转换成平衡二叉搜索树"""
+    def bitree(nums):
+        if not nums:
+            return None
+        ind = len(nums) // 2
+        root = TreeNode(nums[ind])
+        root.left = bitree(nums[:ind])
+        root.right = bitree(nums[ind+1:])
+        return root
+    return bitree(nums)
 
 class search_bitree:
     def demo(self, root):
