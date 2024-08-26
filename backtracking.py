@@ -85,3 +85,58 @@ def generateParenthesis(n: int):
     res = []
     backtrack("", 0, 0)
     return res
+
+def subsets(nums):
+    """78.所有子集"""
+    # 迭代
+    res = [[]]
+    for num in nums:
+        res = res + [[num] + n for n in res]
+    return res
+
+    # 回溯：
+    def recrusion(j, l):
+        res.append(l)
+        for i in range(j, len(nums)):
+            recrusion(i + 1, l + [nums[i]])
+
+    res = []
+    recrusion(0, [])
+    return res
+
+
+def exist(board, word) -> bool:
+    """79.单词搜索，搜索是否存在一条路径满足word"""
+    def recrusion(i, j, k, visited):
+        if k == n:
+            return True
+        for x, y in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            tmp_i, tmp_j = x + i, y + j
+            if 0<=tmp_i<row and 0<=tmp_j<col and (tmp_i, tmp_j) not in visited and board[tmp_i][tmp_j] == word[k]:
+                visited.add((tmp_i, tmp_j))
+                if recrusion(tmp_i, tmp_j, k+1, visited):
+                    return True
+                visited.remove((tmp_i, tmp_j))
+        return False
+
+    n = len(word)
+    row, col = len(board), len(board[0])
+    for i in range(row):
+        for j in range(col):
+            if board[i][j] == word[0] and recrusion(i, j, 1, {(i, j)}):
+                return True
+    return False
+
+
+def partition(s: str):
+    """131.分割回文子串，使得每个子串都是回文子串"""
+    def recrusion(s, l):
+        if not s:
+            res.append(l)
+            return
+        for i in range(1, len(s)+1):
+            if s[:i] == s[:i][::-1]:
+                recrusion(s[i:], l+[s[:i]])
+    res = []
+    recrusion(s, [])
+    return res

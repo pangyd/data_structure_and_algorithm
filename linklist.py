@@ -123,3 +123,26 @@ def sortList(self, head):
         p = p.next
     p.next = left if left else right
     return dummy.next
+
+
+def getIntersectionNode(self, headA: ListNode, headB: ListNode):
+    """160.相交链表"""
+    A, B = headA, headB
+    while A != B:
+        A = A.next if A else headB
+        B = B.next if B else headA
+    return A
+
+
+def swapPairs(head):
+    """24.两两交换节点"""
+    p = dummy = ListNode()
+    dummy.next = head
+    while p.next and p.next.next:
+        a = p.next
+        b = p.next.next
+        a.next = b.next
+        b.next = a
+        p.next = b
+        p = p.next.next
+    return dummy.next
