@@ -104,3 +104,47 @@ def calculate(s: str) -> int:
             res += stack.pop()
     res += num * sign
     return res
+
+
+def dailyTemperatures(temperatures):
+    """739.下一个更高温度是几天之后"""
+    stack = []
+    res = [0] * len(temperatures)
+    for i in range(len(temperatures)):
+        while stack and temperatures[i] > temperatures[stack[-1]]:
+            x = stack.pop()
+            res[x] = i - x
+        stack.append(i)
+    return res
+
+
+def decodeString(s: str) -> str:
+    """394.字符串解码"""
+    res, num = "", ""
+    stack = []
+    for c in s:
+        if "0" <= c <= "9":
+            num += c
+        elif c == "[":
+            stack.append((res, num))
+            num = ""
+            res = ""
+        elif c == "]":
+            tmp, k = stack.pop()
+            res = tmp + int(k) * res
+        else:
+            res += c
+    return res
+
+
+def largestRectangleArea(heights) -> int:
+    """84.柱状图中最大的矩形"""
+    res = 0
+    heights = [0] + heights + [0]
+    stack = []
+    for i in range(len(heights)):
+        while stack and heights[stack[-1]] > heights[i]:
+            x = stack.pop()
+            res = max(res, heights[x] * (i - stack[-1] - 1))
+        stack.append(i)
+    return res
