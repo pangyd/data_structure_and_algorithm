@@ -239,3 +239,28 @@ def climbStairs(n: int) -> int:
     for i in range(2, n + 1):
         f.append(f[i - 1] + f[i - 2])
     return f[-1]
+
+
+def maxProduct(nums) -> int:
+    """152.乘积最大的子数组"""
+    res, pre_max, pre_min = nums[0], nums[0], nums[0]
+    for num in nums[1:]:
+        cur_max = max(num, num*pre_max, num*pre_min)
+        cur_min = min(num, num*pre_min, num*pre_max)
+        res = max(res, cur_max)
+        pre_max = cur_max
+        pre_min = cur_min
+    return res
+
+
+def longestValidParentheses(s: str) -> int:
+    """32.最长有效括号数"""
+    res = 0
+    stack = []
+    for i in range(len(s)):
+        if not stack or s[i] == '(' or s[stack[-1]] == ')':
+            stack.append(i)
+        else:
+            stack.pop()
+            res = max(res, i - (stack[-1] if stack else -1))
+    return res
