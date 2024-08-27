@@ -5,6 +5,12 @@
 @time: 2024/7/22 21:15
 @desc: 
 """
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
 class dp_in_array:
     def canPartition(self, nums) -> bool:
         """416.分割等和子集:nums能不能分割成两个子集，且子集的和相等"""
