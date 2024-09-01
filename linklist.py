@@ -7,7 +7,7 @@
 """
 
 class ListNode:
-    def __init__(self, item=0):
+    def __init__(self, item=0, next=None):
         self.item = item
         self.next = None
 
@@ -145,4 +145,28 @@ def swapPairs(head):
         b.next = a
         p.next = b
         p = p.next.next
+    return dummy.next
+
+def reverseKGroup(head, k: int):
+    """25.K个一组翻转链表"""
+    n = 0
+    node = head
+    while node:
+        n += 1
+        node = node.next
+
+    p = dummy = ListNode(next=head)
+    pre = None
+    cur = head
+    while n >= k:
+        n -= k
+        for _ in range(k):
+            nxt = cur.next
+            cur.next = pre
+            pre = cur
+            cur = nxt
+        nxt = p.next   # head
+        nxt.next = cur
+        p.next = pre
+        p = nxt
     return dummy.next
