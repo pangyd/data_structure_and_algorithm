@@ -136,6 +136,30 @@ def findPeakElement(nums) -> int:
             else:
                 right = mid - 1
 
+def searchRange(nums, target: int):
+    """34.排序数组中查找第一个和最后一个元素"""
+    if not nums:
+        return [-1, -1]
+    res = [-1, -1]
+    left, right = 0, len(nums)
+    while left < right:
+        mid = left + (right - left) // 2
+        if nums[mid] == target:
+            res = [mid, mid]
+            mid1, mid2 = mid-1, mid+1
+            while mid1 >= 0 and nums[mid1] == target:
+                res[0] = mid1
+                mid1 -= 1
+            while mid2 < len(nums) and nums[mid2] == target:
+                res[1] = mid2
+                mid2 += 1
+            return res
+        elif nums[mid] > target:
+            right = mid
+        else:
+            left = mid + 1
+    return res
+
 def findMedianSortedArrays(nums1, nums2) -> float:
     """4.寻找两个正序数组的中位数"""
     if len(nums1) > len(nums2):

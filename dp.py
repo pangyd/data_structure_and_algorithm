@@ -94,25 +94,25 @@ class dp_in_string:
     def longestPalindrome(self, s: str) -> str:
         """最长回文子串"""
         n = len(s)
-        if n < 2:
-            return s
         dp = [[False] * n for _ in range(n)]
-        begin = 0
-        max_len = 1
         for i in range(n):
             dp[i][i] = True
+        begin = 0
+        max_len = 1
         for L in range(2, n+1):
             for i in range(n):
                 j = L + i - 1
                 if j >= n:
                     break
-                if j - i < 3:
-                    dp[i][j] = True
+                if s[i] != s[j]:
+                    dp[i][j] = False
                 else:
-                    if s[i] == s[j]:
+                    if j - i < 3:
+                        dp[i][j] = True
+                    else:
                         dp[i][j] = dp[i+1][j-1]
-                    if dp[i][j] and j - i > max_len:
-                        max_len = j - 1
+                    if dp[i][j] and L > max_len:
+                        max_len = L
                         begin = i
         return s[begin: begin+max_len]
 
