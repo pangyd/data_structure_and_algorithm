@@ -56,6 +56,15 @@ def iou(box1, box2):
     return iou
 
 
+def crossentropy(predict, target):
+    softmax = torch.exp(predict) / torch.exp(predict).sum(dim=-1, keepdims=True)
+    probs = softmax(predict)
+    log_probs = torch.log(probs)
+    target_log_probs = log_probs[range(target.shape[0]), target]
+    loss = -target_log_probs.mean()
+    return loss
+
+
 class quantization():
     def __init__(self, num_bits=8):
         self.num_bits = num_bits
