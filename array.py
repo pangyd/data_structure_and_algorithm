@@ -43,3 +43,57 @@ def maxSubarraySumCircular(nums) -> int:
     if sum(nums) == min_s:
         return max_s
     return max(max_s, sum(nums)-min_s)
+
+
+def subarraySum(nums, k):
+    """560.和为k的子数组"""
+    dic = {0: 1}
+    res = 0
+    s = 0
+    for num in nums:
+        s += num
+        tmp = s - k
+        res += dic.get(tmp, 0) + 1
+        dic[s] = dic.get(s, 0) + 1
+    return res
+
+
+def firstMissingPositive(nums) -> int:
+    """41.缺失的第一个正数"""
+    n = len(nums)
+    hash_size = n + 1
+    for i in range(n):
+        if nums[i] <= 0 or nums[i] >= hash_size:
+            nums[i] = 0
+    for i in range(n):
+        if nums[i] % hash_size != 0:
+            pos = (nums[i] % hash_size) - 1
+            nums[pos] = (nums[pos] % hash_size) + hash_size   # 说明pos+1位置的数存在
+    for i in range(n):
+        if nums[i] < hash_size:
+            return i + 1
+    return hash_size
+
+
+def sortColors(nums) -> None:
+    """
+    Do not return anything, modify nums in-place instead.
+    75.颜色分类
+    """
+    zero = 0
+    two = len(nums) - 1
+    i = 0
+    while i <= two:
+        if nums[i] == 0:
+            tmp = nums[i]
+            nums[i] = nums[zero]
+            nums[zero] = tmp
+            zero += 1
+            i += 1
+        elif nums[i] == 2:
+            tmp = nums[i]
+            nums[i] = nums[two]
+            nums[two] = tmp
+            two -= 1
+        else:
+            i += 1
