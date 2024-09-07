@@ -56,6 +56,79 @@ def iou(box1, box2):
     return iou
 
 
+import torch
+import torch.nn.functional as F
+
+
+def roi_pooling(feature_map, rois, output_size):
+    """
+    手写实现RoI Pooling操作。
+
+    参数:
+    - feature_map: (N, C, H, W) 特征图张量
+    - rois: (num_rois, 5) RoI张量，每个RoI由 (batch_index, x1, y1, x2, y2) 表示
+    - output_size: (output_height, output_width) 输出特征图的大小
+
+    返回:
+    - pooled_features: (num_rois, C, output_height, output_width) 池化后的特征图
+    """
+    num_rois = rois.size(0)
+    num_channels = feature_map.size(1)
+    output_height, output_width = output_size
+
+    # 初始化池化后的输出张量
+    pooled_features = torch.zeros((num_rois, num_channels, output_height, output_width))
+
+    for i in range(num_rois):
+        roi = rois[i]
+        batch_index = int(roi[0].item())
+        x1, y1, x2, y2 = roi[1:].int()
+
+        roi_width = max(x2 - x1 + 1, 1)
+        roi_height = max(y2 - y1 + 1, 1)
+
+        # 计算每个池化区域的大小
+        bin_size_w = roi_width / output_width
+        bin_size_h = roi_height / output_height
+
+        for ph in range(output_height):
+            for pw in range(output_width):
+                # 计算当前bin的边界
+                h_start = int(y1 + ph * bin_size_h)
+                h_end = int(y1 + (ph + 1) * bin_size_h)
+                w_start = int(x1 + pw * bin_size_w)
+                w_end = int(x1 + (pw + 1) * bin_size_w)
+
+                # 边界限制在特征图范围内
+                h_start = min(max(h_start, 0), feature_map.size(2))
+                h_end = min(max(h_end, 0), feature_map.size(2))
+                w_start = min(max(w_start, 0), feature_map.size(3))
+                w_end = min(max(w_end, 0), feature_map.size(3))
+
+                # 如果区域大小为0，则跳过
+                if h_end <= h_start or w_end <= w_start:
+                    continue
+
+                # 从特征图中提取当前bin的子区域
+                roi_bin = feature_map[batch_index, :, h_start:h_end, w_start:w_end]
+
+                # 在该区域上执行最大池化
+                pooled_features[i, :, ph, pw] = torch.max(roi_bin.view(num_channels, -1), dim=1)[0]
+
+    return pooled_features
+
+
+# 示例使用
+feature_map = torch.randn(1, 256, 50, 50)  # 例如 (1, 256, 50, 50)
+rois = torch.tensor([[0, 10, 10, 30, 30],  # 第一张图中的一个RoI
+                     [0, 20, 20, 40, 40]], dtype=torch.float32)  # 第一张图中的另一个RoI
+
+output_size = (7, 7)  # 输出的特征图大小
+pooled_features = roi_pooling(feature_map, rois, output_size)
+
+print(pooled_features.shape)  # 输出: torch.Size([2, 256, 7, 7])
+
+
 class quantization():
     def __init__(self, num_bits=8):
         self.num_bits = num_bits
