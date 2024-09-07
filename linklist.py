@@ -9,7 +9,7 @@
 class ListNode:
     def __init__(self, item=0, next=None):
         self.item = item
-        self.next = None
+        self.next = next
 
 
 def create_linklist_head(l):

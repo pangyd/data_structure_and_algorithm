@@ -127,6 +127,13 @@ output_size = (7, 7)  # 输出的特征图大小
 pooled_features = roi_pooling(feature_map, rois, output_size)
 
 print(pooled_features.shape)  # 输出: torch.Size([2, 256, 7, 7])
+def crossentropy(predict, target):
+    softmax = torch.exp(predict) / torch.exp(predict).sum(dim=-1, keepdims=True)
+    probs = softmax(predict)
+    log_probs = torch.log(probs)
+    target_log_probs = log_probs[range(target.shape[0]), target]
+    loss = -target_log_probs.mean()
+    return loss
 
 
 class quantization():
