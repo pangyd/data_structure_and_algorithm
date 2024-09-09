@@ -97,3 +97,41 @@ def sortColors(nums) -> None:
             two -= 1
         else:
             i += 1
+
+def nextPermutation(nums) -> None:
+    """
+    31.全排列
+    Do not return anything, modify nums in-place instead.
+    """
+    n = len(nums)
+    if n > 1:
+        left, right = -1, 0
+        for i in range(n-1):
+            if nums[i] < nums[i+1]:
+                left = i
+            if left != -1 and nums[i] > nums[left]:
+                right = i
+        if left != -1 and nums[n-1] > nums[left]:
+            right = n - 1
+        if left == -1:
+            nums[:] = nums[::-1]
+        else:
+            tmp = nums[left]
+            nums[left] = nums[right]
+            nums[right] = tmp
+            nums[:] = nums[:left+1] + nums[n-1: left: -1]
+
+def findDuplicate(nums) -> int:
+    """287.寻找重复数，且不能修改nums,常数空间"""
+    left, right = 0, len(nums)-1
+    while left < right:
+        mid = left + (right - left) // 2
+        count = 0
+        for num in nums:
+            if num <= mid:
+                count += 1
+        if mid >= count:
+            left = mid + 1
+        else:
+            right = mid
+    return left

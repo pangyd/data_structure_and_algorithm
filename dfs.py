@@ -79,3 +79,23 @@ def exist(board, word: str) -> bool:
             if board[i][j] == word[0] and dfs(i, j, 1, {(i, j)}):
                 return True
     return False
+
+
+def orangesRotting(grid) -> int:
+    """994.腐烂的橘子：腐烂上下左右都会腐烂，多少步后全部腐烂"""
+    rotten = {(i, j) for i in range(len(grid)) for j in range(len(grid[0])) if grid[i][j]==2}
+    fresh = {(i, j) for i in range(len(grid)) for j in range(len(grid[0])) if grid[i][j]==1}
+    res = 0
+
+    while fresh:
+        if not rotten:
+            return -1
+        neighbor = set()
+        for i, j in rotten:
+            for x, y in [[-1, 0], [1, 0], [0, -1], [0,1]]:
+                if (i+x, j+y) in fresh:
+                    neighbor.add((i+x, j+y))
+        rotten = neighbor
+        fresh -= neighbor
+        res += 1
+    return res

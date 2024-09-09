@@ -28,3 +28,26 @@ print(nums)
 nums = [str(i) for i in nums]
 num = "".join(nums)
 print(num)
+
+
+def partitionLabels(s):
+    """763.划分字母区间，使得每个区间相互独立"""
+    tmp = 0
+    x = ""
+    y = 0
+    res = []
+    for i in range(len(s)):
+        tmp += 1
+        x += s[i]
+        for c in set(x):
+            if c not in s[i+1]:
+                y += 1
+            else:
+                y = 0
+                break
+            if y == len(set(x)):
+                res.append(tmp)
+                tmp = 0
+                x = ""
+                y = 0
+    return res
