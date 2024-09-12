@@ -62,13 +62,10 @@ import torch.nn.functional as F
 
 def roi_pooling(feature_map, rois, output_size):
     """
-    手写实现RoI Pooling操作。
-
     参数:
     - feature_map: (N, C, H, W) 特征图张量
     - rois: (num_rois, 5) RoI张量，每个RoI由 (batch_index, x1, y1, x2, y2) 表示
     - output_size: (output_height, output_width) 输出特征图的大小
-
     返回:
     - pooled_features: (num_rois, C, output_height, output_width) 池化后的特征图
     """
@@ -127,13 +124,91 @@ output_size = (7, 7)  # 输出的特征图大小
 pooled_features = roi_pooling(feature_map, rois, output_size)
 
 print(pooled_features.shape)  # 输出: torch.Size([2, 256, 7, 7])
-def crossentropy(predict, target):
-    softmax = torch.exp(predict) / torch.exp(predict).sum(dim=-1, keepdims=True)
-    probs = softmax(predict)
-    log_probs = torch.log(probs)
-    target_log_probs = log_probs[range(target.shape[0]), target]
-    loss = -target_log_probs.mean()
+def cross_entropy(predict, target):
+    """
+    :param predict: [bs, num_classes]
+    :param target: [bs, ]   值为[0, num_classes-1]
+    :return:
+    """
+    probs = torch.exp(predict) / torch.exp(predict).sum(dim=-1, keepdims=True)
+    batch_size = predict.shape[0]
+    target_one_hot = torch.zeros_like(probs)
+    target_one_hot.scatter_(1, target.unsqueeze(1), 1)
+    loss = -torch.sum(target_one_hot * torch.log(probs + 1e-10)) / batch_size
     return loss
+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class DFLLoss(nn.Module):
+    def __init__(self, reg_max=16):
+        super(DFLLoss, self).__init__()
+        self.reg_max = reg_max  # Number of bins used for the distribution
+
+    def forward(self, pred, target):
+        # Reshape the predictions to (batch_size, 4, reg_max + 1, H, W)
+        pred = pred.view(-1, 4, self.reg_max + 1, *pred.shape[2:])
+
+        # Split into x, y, w, h predictions
+        pred_x = pred[:, 0, :, :, :]
+        pred_y = pred[:, 1, :, :, :]
+        pred_w = pred[:, 2, :, :, :]
+        pred_h = pred[:, 3, :, :, :]
+
+        # Split target into x, y, w, h
+        target_x = target[:, 0, :, :]
+        target_y = target[:, 1, :, :]
+        target_w = target[:, 2, :, :]
+        target_h = target[:, 3, :, :]
+
+        # Compute the loss for each coordinate
+        loss_x = self._df_loss(pred_x, target_x)
+        loss_y = self._df_loss(pred_y, target_y)
+        loss_w = self._df_loss(pred_w, target_w)
+        loss_h = self._df_loss(pred_h, target_h)
+
+        # Total loss is the sum of all coordinate losses
+        loss = loss_x + loss_y + loss_w + loss_h
+        return loss
+
+    def _df_loss(self, pred, target):
+        # Convert target into two indices (lower and upper bounds) and weights (linear interpolation)
+        t = target.long()
+        w = target - t  # fractional part (interpolation weight)
+
+        # Define lower and upper bounds based on target
+        t0 = torch.clamp(t, 0, self.reg_max)
+        t1 = torch.clamp(t + 1, 0, self.reg_max)
+
+        # Gather the predicted logits for the lower and upper bins
+        p0 = pred.gather(1, t0.unsqueeze(1))  # (batch_size, 1, H, W)
+        p1 = pred.gather(1, t1.unsqueeze(1))  # (batch_size, 1, H, W)
+
+        # Compute the loss as a weighted combination of the two bins
+        loss = F.binary_cross_entropy_with_logits(p0, (1 - w).unsqueeze(1), reduction='none') + \
+               F.binary_cross_entropy_with_logits(p1, w.unsqueeze(1), reduction='none')
+
+        return loss.mean()
+
+
+# Example usage:
+# Assume we have a predicted output and a ground truth target tensor
+# pred: (batch_size, 4 * (reg_max + 1), H, W), target: (batch_size, 4, H, W)
+batch_size = 2
+H, W = 80, 80
+reg_max = 16
+pred = torch.randn(batch_size, 4 * (reg_max + 1), H, W)
+target = torch.rand(batch_size, 4, H, W) * reg_max  # Random target values in the range [0, reg_max]
+
+# Initialize DFL loss
+dfl_loss = DFLLoss(reg_max=reg_max)
+
+# Compute the loss
+loss_value = dfl_loss(pred, target)
+print("DFL Loss:", loss_value.item())
 
 
 class quantization():
