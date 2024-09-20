@@ -135,3 +135,22 @@ def findDuplicate(nums) -> int:
         else:
             right = mid
     return left
+
+
+def maxSlidingWindow(nums, k: int):
+    """239.每个滑动窗口的最大值"""
+    import collections
+    n = len(nums)
+    res = []
+    queue = collections.deque()
+    for i, j in zip(range(1-k, n-k+1), range(n)):
+        if i > 0 and queue[0] == nums[i-1]:
+            queue.popleft()   # 每轮窗口移除nums[i-1]
+
+        while queue and queue[-1] < nums[j]:
+            queue.pop()   # 保证queue是递减的
+        queue.append(nums[j])
+
+        if i >= 0:
+            res.append(queue[0])
+    return res
