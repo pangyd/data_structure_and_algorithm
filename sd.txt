@@ -1,0 +1,92 @@
+3. 提示词生成
+1. 背景
+提示词对于生成模型的生成效果影响很大，涂鸦生成没有用户输入prompt的选项，需要我们根据用户输入的图片反推提示词，既能表达出用户意图，又能有创造性和想象力，并且能让模型生成高质量的图像。
+
+常见的方法都是通过多模态模型根据图片生成caption，再加以修改和补充，变成适合 图片生成模型 的prompt形式。
+
+2. 方案
+如果在用LMM给成画作生成标题的同时，生成“画作”的prompt，然后传给后续的涂鸦生成的工作流。
+方案一：WD14，耗时约2s左右，效果比较一般，需要调整的地方比较多。
+
+方案二：利用gpt4-o生成 prompt。（3s～5s，离线调用速率，线上调用速度未知），效果比较好
+
+方案三：文心一格，耗时未知，生成prompt对于图片的理解比WD14好，但是prompt过长，且创造性没gpt好，需要对文心一言的输入和输出进行调整。（公司暂时没有可调用的api）
+
+方案四：joy_cation：生成的prompt比较长，不适合SD系列模型的生成。
+
+方案五：miniCPMv2_6_prompt_generator：耗时比较长，14s左右，生成的prompt效果适中。
+
+方案六：florence2-large/base-PromptGen V1.5: 基于Florence-2 Model Large，fine-tuned perfection。耗时约4s左右，由于模型微调主要针对人物场景，导致prompt中普遍带有人物特征。可以通过后处理策略或模型微调来满足我们的需求。
+
+原始方案一存在问题：
+
+1. 生成提示此不准确。
+2. 分辨率较低的图片，无法生成提示词。
+3. 生成的提示词影响后续风格的生成。
+4. 主要用于一些人物的反推，其他类别生成的主体不符合。
+base：dreamshaperXL + anyline(controlnet预处理）+ anytest(controlnet模型)
+
+prompt设计：根据这个主题想象一幅完整的画面，然后转化成一份详细的、高质量的prompt，让Stable Diffusion可以直接使用生成高质量的图像，要求：需要描述画面主体和画面细节；同时生成一个画作标题要展现孩子独特的艺术视角、童真和丰富的想象力。prompt 要求
+* 你输出的 Stable Diffusion prompt 以“Prompt:”开头。
+* prompt 内容包含画面主体、材质、附加细节、图像质量、艺术风格、色彩色调、灯光等部分，但你输出的 prompt 不能分段，例如类似"medium:“这样的分段描述是不需要的，也不能包含”:“和”."。
+* 画面主体：简短的英文描述画面主体, 如 A girl in a garden，主体细节概括（主体可以是人、事、物、景）画面核心内容。这部分根据我每次给你的主题来生成。你可以添加更多主题相关的合理的细节。
+* 对于人物主题，你必须描述人物的眼睛、鼻子、嘴唇，例如’beautiful detailed eyes,beautiful detailed lips,extremely detailed eyes and face,longeyelashes’，以免Stable Diffusion随机生成变形的面部五官，这点非常重要。你还可以描述人物的外表、情绪、衣服、姿势、视角、动作、背景等。人物属性中，1girl表示一个女孩，2girls表示两个女孩。
+* 材质：用来制作艺术品的材料。 例如：插图、油画、3D 渲染和摄影。 Medium 有很强的效果，因为一个关键字就可以极大地改变风格。
+* 附加细节：画面场景细节，或人物细节，描述画面细节内容，让图像看起来更充实和合理。这部分是可选的，要注意画面的整体和谐，不能与主题冲突。
+* 图像质量：这部分内容开头永远要加上“(best quality,4k,8k,highres,masterpiece:1.2),ultra-detailed,(realistic,photorealistic,photo-realistic:1.37)”， 这是高质量的标志。其它常用的提高质量的tag还有，你可以根据主题的需求添加：HDR,UHD,studio lighting,ultra-fine painting,sharp focus,physically-based rendering,extreme detail description,professional,vivid colors,bokeh。
+* 艺术风格：这部分描述图像的风格。加入恰当的艺术风格，能提升生成的图像效果。常用的艺术风格例如：portraits,landscape,horror,anime,sci-fi,photography,concept artists等。
+* 色彩色调：颜色，通过添加颜色来控制画面的整体颜色。
+* 灯光：整体画面的光线效果。
+2. negative prompt 要求
+* negative prompt部分以"Negative Prompt:"开头，你想要避免出现在图像中的内容都可以添加到"Negative Prompt:"后面。
+* 任何情况下，negative prompt都要包含这段内容：“nsfw,(low quality,normal quality,worst quality,jpeg artifacts),cropped,monochrome,lowres,low saturation,((watermark)),(white letters)”
+* 如果是人物相关的主题，你的输出需要另加一段人物相关的 negative prompt，内容为：“skin spots,acnes,skin blemishes,age spot,mutated hands,mutated fingers,deformed,bad anatomy,disfigured,poorly drawn face,extra limb,ugly,poorly drawn hands,missing limb,floating limbs,disconnected limbs,out of focus,long neck,long body,extra fingers,fewer fingers,(multi nipples),bad hands,signature,username,bad feet,blurry,bad body”。
+
+
+涂鸦、手绘生成需要通过anyline提取原图的线稿图，然后通过controlnet模型控制模型生成与原图轮廓和对象接近的图片。
+
+SDXL模型常用的controlnet模型有两种。mistoline 和 anytest。生成效果与控制参数，prompt和选择的SDXL模型有关，仅对比当前工作流场景下的效果。
+controlnet模型
+
+mistoline
+* 兼容大多数SDXL模型，除了playgroundV2.5, CosXL和SDXL-Lightning，但可以和LCM一起用。
+* 与line图的细节比较一致，控制比较强。涂鸦场景生成一般。
+* 训练采用anyline提取的线稿作为条件。
+anytest
+* 多功能模型，可以用于anyline、scribble、lineart、类tile等功能。
+* 可以自动增加画面的细节和补全一些内容。
+* 兼容大多数SDXL模型。
+
+
+7. 提升词生成模型训练
+1. Florence-2微调
+Florence-2是微软24年6月开源的视觉基础模型，该模型使用基于prompt的方法来处理了各种计算机视觉和视觉语言任务。能够处理基于文本prompt进行 分割、目标检测、image-caption的任务。
+模型分成 base（0.2B）和 large（0.7B）两个版本。
+
+无论执行什么样的计算机视觉任务，Florence-2 都会将其建模为序列到序列的任务。Florence-2 以图像和文本作为输入，并输出文本。模型结构比较简单: 用 DaViT 视觉编码器将图像转换为视觉嵌入，并用 BERT 将文本提示转换为文本和位置嵌入; 然后，生成的嵌入由标准编码器 - 解码器 transformer 架构进行处理，最终生成文本和位置词元。Florence-2 的优势并非源自其架构，而是源自海量的预训练数据集。作者指出，市面上领先的计算机视觉数据集通常所含信息有限 - WIT 仅有图文对，SA-1B 仅有图像及相关分割掩码。因此，他们决定构建一个新的 FLD-5B 数据集，其中的每个图像都包含最广泛的信息 - 目标框、掩码、描述文本及标签。在创建数据集时，很大程度采用了自动化的过程，作者使用现成的专门任务模型，并用一组启发式规则及质检过程来清理所获得的结果。最终生成的用于预训练 Florence-2 模型的新数据集中包含了 1.26 亿张图像、超过 50 亿个标注。
+
+
+
+1.1 数据集准备
+开源数据集：https://github.com/facebookresearch/AnimatedDrawings#amateur-drawings-dataset 涂鸦数据集
+
+# download annotations (~275Mb)
+wget https://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings_annotations.json
+
+# download images (~50Gb)
+wget https://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings.tar
+
+基础模型  Florence-2-large-ft
+
+微调模块  vision-encoder  decoder
+
+实验参数  epoch=8，lr=1e-6，num_warmup_steps=200， batch-size=4
+
+效果  格式和描述准确率效果还不错；稍微有点过拟合，多样性不足；
+
+改进  增加训练集的多样性，gpt生成的时候增加一些随机性的词。
+
+效果对比  从1.3效果来看，实验1微调之后生成的prompt格式更加符合SDXL模型的要求，对于主体描述的更加准确，并且会随机增加一些对背景内容的想象。而florence-2-prompt-gen会严格按照输入图片进行描述，甚至会有些关于纸张褶皱的描述，导致生成图片带有纸张的特征。
+
+
+
