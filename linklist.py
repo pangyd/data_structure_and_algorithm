@@ -55,7 +55,7 @@ class Double_linklist():
         del p
 
 def removeNthFromEnd(head, n: int):
-    """19.删除第n个节点"""
+    """19.删除倒数第n个节点"""
     dummy = ListNode(0)
     dummy.next = head  # 将head的头节点给dummy.next
 
@@ -70,6 +70,16 @@ def removeNthFromEnd(head, n: int):
 
     slow.next = slow.next.next
     return dummy.next  # head的头节点
+
+
+def a(head, n):
+    p = dummy = ListNode(next=head)
+    slow, fast = dummy, dummy
+    for i in range(n):
+        fast = fast.next
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next
 
 def mergeTwoLists(list1, list2):
     """21.合并两个链表"""
