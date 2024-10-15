@@ -72,15 +72,6 @@ def removeNthFromEnd(head, n: int):
     return dummy.next  # head的头节点
 
 
-def a(head, n):
-    p = dummy = ListNode(next=head)
-    slow, fast = dummy, dummy
-    for i in range(n):
-        fast = fast.next
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next
-
 def mergeTwoLists(list1, list2):
     """21.合并两个链表"""
     if not list1:
