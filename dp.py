@@ -167,7 +167,7 @@ class dp_in_string:
                     dp[i][j] = True
         return dp[n1][n2]
 
-    def longestCommonSubsequence(text1: str, text2: str) -> int:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
         """1143.最长公共子序列"""
         n1, n2 = len(text1), len(text2)
         dp = [[0] * (n1 + 1) for _ in range(n2 + 1)]
@@ -288,15 +288,5 @@ def maxProduct(nums) -> int:
     return res
 
 
-def longestValidParentheses(s: str) -> int:
-    """32.最长有效括号数"""
-    res = 0
-    stack = []
-    for i in range(len(s)):
-        if not stack or s[i] == '(' or s[stack[-1]] == ')':
-            stack.append(i)
-        else:
-            stack.pop()
-            res = max(res, i - (stack[-1] if stack else -1))
-    return res
+
 

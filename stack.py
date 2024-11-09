@@ -148,3 +148,16 @@ def largestRectangleArea(heights) -> int:
             res = max(res, heights[x] * (i - stack[-1] - 1))
         stack.append(i)
     return res
+
+
+def longestValidParentheses(s: str) -> int:
+    """32.最长有效括号数"""
+    res = 0
+    stack = []
+    for i in range(len(s)):
+        if not stack or s[i] == '(' or s[stack[-1]] == ')':
+            stack.append(i)
+        else:
+            stack.pop()
+            res = max(res, i - (stack[-1] if stack else -1))
+    return res
