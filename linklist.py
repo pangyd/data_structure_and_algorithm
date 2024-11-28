@@ -86,6 +86,20 @@ def mergeTwoLists(list1, list2):
         list2.next = mergeTwoLists(list1, list2.next)
         return list2
 
+def detectCycle(head):
+    """142.输出环形链表头节点"""
+    slow, fast = head, head
+    while True:
+        if not (fast and fast.next):
+            return None
+        slow, fast = slow.next, fast.next.next
+        if slow == fast:
+            break
+
+    fast = head
+    while fast != slow:
+        slow, fast = slow.next, fast.next
+    return fast
 
 def deleteDuplicates(head):
     """82.删除重复元素"""
