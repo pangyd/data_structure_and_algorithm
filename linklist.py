@@ -101,6 +101,23 @@ def detectCycle(head):
         slow, fast = slow.next, fast.next
     return fast
 
+def reverseBetween(head, left, right):
+    if not head:
+        return head
+    p = dummy = ListNode(next=head)
+    for _ in range(left-1):
+        p = p.next
+    pre = None
+    cur = p.next
+    for _ in range(right-left+1):
+        nxt = cur.next
+        cur.next = pre
+        pre = cur
+        cur = nxt
+    p.next.next = cur
+    p.next = pre
+    return dummy.next
+
 def deleteDuplicates(head):
     """82.删除重复元素"""
     p = dummp = ListNode(next=head)
